@@ -35,6 +35,7 @@ import {
 import { ensureAudio, updateAudio } from "@/game/audio";
 import { boosting, consumeLook, installInput, lifting, readSteer, readThrust } from "@/game/input";
 import { headingFromYaw, live } from "@/game/probe";
+import { makeCraft } from "@/game/plane";
 import { useFlight } from "@/game/store";
 import {
   WATER,
@@ -58,10 +59,7 @@ const PINE_DARK = "#163f24";
 const ROCK = "#8a8076";
 const CLOUD = "#f7f4ee";
 const CLOUD_NIGHT = "#8e9bb8";
-const CREAM = "#efe8d8";
 const AMBER = "#e2a84a";
-const CANOPY = "#1c3330";
-const PROP = "#2a241c";
 
 const reducedMotion =
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -239,10 +237,10 @@ function step(sim: Sim, dt: number) {
 
 function chaseDesired(sim: Sim, target: Vector3) {
   orient(sim.yaw, sim.pitch, sim.roll);
-  let dist = 14.5;
+  let dist = 18;
   for (let i = 0; i < 5; i++) {
     target.copy(sim.pos).addScaledVector(_fwd, -dist);
-    target.y += 4.2;
+    target.y += 5.2;
     if (target.y >= sampleSurface(target.x, target.z) + 1.5) break;
     dist *= 0.62;
   }
@@ -338,107 +336,6 @@ function makeClouds() {
   return { clouds, cloudMat, puffs };
 }
 
-function makeCraft() {
-  const craft = new Group();
-  const body = new Group();
-  const paint = new MeshLambertMaterial({ color: CREAM, flatShading: true });
-  const belly = new MeshLambertMaterial({ color: "#2f5c3c", flatShading: true });
-  const metal = new MeshLambertMaterial({ color: "#b7b1a4", flatShading: true });
-  const dark = new MeshLambertMaterial({ color: PROP, flatShading: true });
-  const glass = new MeshLambertMaterial({ color: CANOPY, flatShading: true });
-  const trim = new MeshLambertMaterial({ color: AMBER, flatShading: true });
-  const rubber = new MeshLambertMaterial({ color: "#161412", flatShading: true });
-  const red = new MeshBasicMaterial({ color: "#d4543c" });
-  const green = new MeshBasicMaterial({ color: "#3cba6a" });
-
-  const put = (
-    geo: Mesh["geometry"],
-    mat: MeshBasicMaterial | MeshLambertMaterial,
-    x: number,
-    y: number,
-    z: number,
-    rx = 0,
-    ry = 0,
-    rz = 0,
-  ) => {
-    const mesh = new Mesh(geo, mat);
-    mesh.position.set(x, y, z);
-    if (rx || ry || rz) mesh.rotation.set(rx, ry, rz);
-    body.add(mesh);
-    return mesh;
-  };
-
-  put(new CylinderGeometry(0.36, 0.13, 1.75, 6), paint, 0, 0.16, -1.45, Math.PI / 2);
-  put(new BoxGeometry(0.92, 0.88, 1.58), paint, 0, 0.2, 0.1);
-  put(new BoxGeometry(0.74, 0.18, 1.35), belly, 0, -0.24, 0.04);
-  put(new CylinderGeometry(0.33, 0.36, 1.15, 8), metal, 0, 0.05, 1.28, Math.PI / 2);
-  put(new CylinderGeometry(0.34, 0.34, 0.09, 8), dark, 0, 0.05, 1.84, Math.PI / 2);
-  put(new ConeGeometry(0.14, 0.4, 8), metal, 0, 0.05, 2.08, Math.PI / 2);
-  put(new BoxGeometry(0.92, 0.06, 0.22), dark, 0, 0.22, 0.95);
-
-  put(new BoxGeometry(0.05, 0.07, 2.55), trim, 0.47, 0.0, 0.05);
-  put(new BoxGeometry(0.05, 0.07, 2.55), trim, -0.47, 0.0, 0.05);
-
-  put(new BoxGeometry(0.74, 0.5, 0.06), glass, 0, 0.42, 0.86, -0.58);
-  put(new BoxGeometry(0.68, 0.045, 0.78), glass, 0, 0.65, 0.18);
-  put(new BoxGeometry(0.04, 0.36, 0.82), glass, 0.47, 0.3, 0.14);
-  put(new BoxGeometry(0.04, 0.36, 0.82), glass, -0.47, 0.3, 0.14);
-
-  put(new BoxGeometry(1.2, 0.08, 1.05), paint, 0, 0.7, 0.16);
-  for (const side of [1, -1] as const) {
-    const wing = new Group();
-    wing.position.set(side * 0.55, 0.7, 0.16);
-    wing.rotation.z = side * 0.08;
-    const panel = new Mesh(new BoxGeometry(3.15, 0.1, 1.2), paint);
-    panel.position.set(side * 1.58, 0.02, 0);
-    wing.add(panel);
-    const under = new Mesh(new BoxGeometry(3.05, 0.045, 1.05), belly);
-    under.position.set(side * 1.58, -0.04, 0);
-    wing.add(under);
-    const flap = new Mesh(new BoxGeometry(1.45, 0.04, 0.18), metal);
-    flap.position.set(side * 1.85, -0.02, -0.42);
-    wing.add(flap);
-    const tip = new Mesh(new BoxGeometry(0.14, 0.1, 1.05), trim);
-    tip.position.x = side * 3.18;
-    wing.add(tip);
-    const light = new Mesh(new BoxGeometry(0.1, 0.07, 0.1), side < 0 ? red : green);
-    light.position.set(side * 3.18, 0.02, 0.42);
-    wing.add(light);
-    body.add(wing);
-    put(new BoxGeometry(0.045, 0.95, 0.045), dark, side * 1.15, 0.22, 0.02, 0, 0, -side * 0.18);
-  }
-
-  put(new BoxGeometry(2.25, 0.05, 0.5), paint, 0, 0.26, -2.08);
-  put(new BoxGeometry(0.72, 0.035, 0.16), trim, 0.72, 0.28, -2.28);
-  put(new BoxGeometry(0.72, 0.035, 0.16), trim, -0.72, 0.28, -2.28);
-  put(new BoxGeometry(0.065, 1.08, 0.78), paint, 0, 0.78, -1.98, -0.2);
-  put(new BoxGeometry(0.05, 0.78, 0.16), trim, 0, 0.84, -2.32);
-
-  for (const side of [1, -1] as const) {
-    put(new BoxGeometry(0.05, 0.58, 0.05), dark, side * 0.4, -0.5, -0.05);
-    put(new CylinderGeometry(0.17, 0.17, 0.09, 10), rubber, side * 0.4, -0.8, -0.05, 0, 0, Math.PI / 2);
-    put(new CylinderGeometry(0.07, 0.07, 0.11, 6), metal, side * 0.4, -0.8, -0.05, 0, 0, Math.PI / 2);
-  }
-  put(new BoxGeometry(0.045, 0.42, 0.045), dark, 0, -0.24, 1.32);
-  put(new CylinderGeometry(0.13, 0.13, 0.08, 10), rubber, 0, -0.48, 1.32, 0, 0, Math.PI / 2);
-
-  const prop = new Group();
-  prop.position.set(0, 0.05, 1.9);
-  const hub = new Mesh(new CylinderGeometry(0.07, 0.07, 0.07, 8), metal);
-  hub.rotation.x = Math.PI / 2;
-  prop.add(hub);
-  for (const side of [1, -1] as const) {
-    const blade = new Mesh(new BoxGeometry(0.1, 0.72, 0.03), dark);
-    blade.position.y = 0.4 * side;
-    blade.rotation.y = side * 0.6;
-    prop.add(blade);
-  }
-  body.add(prop);
-
-  body.scale.setScalar(1.35);
-  craft.add(body);
-  return { craft, prop };
-}
 
 function createScene() {
   const scene = new Scene();
@@ -613,14 +510,14 @@ function tick(world: World, sim: Sim, camera: PerspectiveCamera, dt: number, now
     sim.pitch = 0;
     sim.roll = 0;
     orient(sim.yaw, 0, 0);
-    sim.pos.set(sim.pad.x, sim.pad.y + 1.15, sim.pad.z);
+    sim.pos.set(sim.pad.x, sim.pad.y + 0.04, sim.pad.z);
     world.craft.position.copy(sim.pos);
     applyBasis(world.craft);
     const a = sim.attract;
     _cam.set(
-      sim.pad.x + Math.sin(a) * 16 + Math.cos(a) * 7,
-      sim.pad.y + 4.6,
-      sim.pad.z + Math.cos(a) * 16 - Math.sin(a) * 7,
+      sim.pad.x + Math.sin(a) * 20 + Math.cos(a) * 9,
+      sim.pad.y + 6.2,
+      sim.pad.z + Math.cos(a) * 20 - Math.sin(a) * 9,
     );
     const gy = sampleSurface(_cam.x, _cam.z) + 2;
     if (_cam.y < gy) _cam.y = gy;
@@ -629,7 +526,7 @@ function tick(world: World, sim: Sim, camera: PerspectiveCamera, dt: number, now
       sim.camReady = true;
     } else camera.position.lerp(_cam, 1 - Math.exp(-2.4 * dt));
     camera.up.set(0, 1, 0);
-    camera.lookAt(sim.pad.x, sim.pad.y + 1.5, sim.pad.z);
+    camera.lookAt(sim.pad.x, sim.pad.y + 1.6, sim.pad.z);
     live.yaw = sim.yaw;
     live.roll = 0;
     live.speed = 0;
@@ -682,8 +579,8 @@ function tick(world: World, sim: Sim, camera: PerspectiveCamera, dt: number, now
   } else camera.position.lerp(_cam, paused ? 1 : k);
   const camFloor = sampleSurface(camera.position.x, camera.position.z) + 1.4;
   if (camera.position.y < camFloor) camera.position.y = camFloor;
-  _look.copy(sim.pos).addScaledVector(_fwd, 9);
-  _look.y += 0.5;
+  _look.copy(sim.pos).addScaledVector(_fwd, 2.4);
+  _look.y += 1.35;
   camera.up.copy(_camUp.copy(_up).lerp(Object3D.DEFAULT_UP, 0.55).normalize());
   camera.lookAt(_look);
 

@@ -38,4 +38,6 @@ The dev server listens on port **8080**.
 
 ## Stack
 
-React 19, TanStack Start, Three.js, Zustand, Tailwind CSS v4. The world is a deterministic heightfield in [`src/game/terrain.ts`](src/game/terrain.ts). Flight, the chase camera, and the craft live in [`src/game/FlightCanvas.tsx`](src/game/FlightCanvas.tsx). There are no accounts — settings stay in `localStorage`.
+React 19, TanStack Start, Three.js, Zustand, Tailwind CSS v4. The world is a deterministic heightfield in [`src/game/terrain.ts`](src/game/terrain.ts). Flight and the chase camera live in [`src/game/FlightCanvas.tsx`](src/game/FlightCanvas.tsx). There are no accounts — settings stay in `localStorage`.
+
+The aircraft is a Cessna 172 by [e737](https://sketchfab.com/e0057537), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), fitted to real-world meters by [gods-eye-view](https://github.com/bilawalsidhu/gods-eye-view).
