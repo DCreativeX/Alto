@@ -240,7 +240,7 @@ export function Hud() {
       {showMenu ? (
         <div className="pointer-events-auto absolute inset-x-4 bottom-4 md:inset-x-auto md:bottom-6 md:left-6 md:w-[26rem]">
           <div className="panel p-5">
-            <p className="label">{paused ? "Paused" : "Survey craft"}</p>
+            <p className="label">{paused ? "Paused" : "Survey plane"}</p>
             <h1 className="wordmark mt-2 text-5xl">Alto</h1>
             <p className="mt-3 text-sm leading-relaxed text-muted">
               The craft holds altitude. Point the nose with the mouse, then thrust. Ridges are solid — you scrape, you

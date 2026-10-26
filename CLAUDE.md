@@ -28,7 +28,7 @@ Chase camera, do not invert steering:
 
 ## Product rules
 
-- Keep the survey tone. No score, lives, death screen, or realistic aircraft unless asked.
+- The player aircraft is a high-wing survey plane built in `makeCraft()` (`src/game/FlightCanvas.tsx`): cowling, cabin glass, dihedral wings, struts, tail, gear, and a spinning two-blade prop. Keep that silhouette. Red nav light is on the left wing, green on the right.
 - Day sky `#c5dceb`, night `#121a30`. Lambert terrain, flat low-poly props.
 - Touch UI (coarse pointer or width under 860) uses hold buttons, not the keyboard hint.
 - `prefers-reduced-motion` already damps camera and water — keep that path working.
