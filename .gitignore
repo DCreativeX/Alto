@@ -1,0 +1,19 @@
+node_modules/
+dist/
+.output/
+.vercel/
+.tanstack/
+screenshots/
+artifacts/
+*.log
+.DS_Store
+
+# App Builder sandbox internals — not part of the game
+.grok/skills/
+.grok/references/
+.grok/preview.log
+.grok/status
+.grok/og-pending
+.grok/favicon-16.png
+.grok/favicon-64.png
+AGENTS.md
